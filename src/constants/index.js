@@ -113,7 +113,7 @@ export const projects = [
     {
         iconUrl: car,
         theme: 'btn-back-blue',
-        name: 'Miro Clone',
+        name: 'Working on Miro Clone',
         description: ' A collaborative, real-time whiteboard. Packed with features such as real-time database, whiteboard from scratch with ability to add shapes like Rectangles and Ellipses, Sticky notes and Pencil drawing.',
         link: 'https://github.com/Ritik-the-dev/Miro-Clone',
     },
@@ -135,7 +135,7 @@ export const projects = [
         iconUrl: snapgram,
         theme: 'btn-back-pink',
         name: 'Full Stack Stack Overflow Clone',
-        description: 'Built a complete clone of Stack Overflow, allowing users to share code ,Questionsm photos and connect with students in a familiar social media environment.',
+        description: 'Built a complete clone of Stack Overflow, allowing users to share code ,Questions photos and connect with students in a familiar social media environment.',
         link: 'https://github.com/Ritik-The-Dev/Stackoverflow-Fullstack',
     },
 ];
