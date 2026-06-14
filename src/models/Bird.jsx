@@ -1,56 +1,64 @@
-import { useEffect, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useEffect, useRef, memo } from "react";
+import { useFrame, invalidate } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
 
 import birdScene from "../assets/3d/bird.glb";
 
-// 3D Model from: https://sketchfab.com/3d-models/phoenix-bird-844ba0cf144a413ea92c779f18912042
-export function Bird() {
+/**
+ * Bird model - purely decorative.
+ * Loaded lazily after main scene is ready.
+ * On reduced-animation devices, uses slower movement and frame skipping.
+ */
+export const Bird = memo(function Bird({ reducedAnimations = false }) {
   const birdRef = useRef();
-
-  // Load the 3D model and animations from the provided GLTF file
   const { scene, animations } = useGLTF(birdScene);
-
-  // Get access to the animations for the bird
   const { actions } = useAnimations(animations, birdRef);
+  const frameCount = useRef(0);
 
-  // Play the "Take 001" animation when the component mounts
-  // Note: Animation names can be found on the Sketchfab website where the 3D model is hosted.
   useEffect(() => {
-    actions["Take 001"].play();
-  }, []);
+    if (actions["Take 001"]) {
+      actions["Take 001"].play();
+      if (reducedAnimations) {
+        actions["Take 001"].timeScale = 0.6;
+      }
+    }
+    return () => {
+      if (actions["Take 001"]) {
+        actions["Take 001"].stop();
+      }
+    };
+  }, [actions, reducedAnimations]);
 
   useFrame(({ clock, camera }) => {
-    // Update the Y position to simulate bird-like motion using a sine wave
+    if (!birdRef.current) return;
+
+    // Skip frames on reduced-animation mode (render every 3rd frame)
+    frameCount.current++;
+    if (reducedAnimations && frameCount.current % 3 !== 0) return;
+
     birdRef.current.position.y = Math.sin(clock.elapsedTime) * 0.2 + 2;
 
-    // Check if the bird reached a certain endpoint relative to the camera
     if (birdRef.current.position.x > camera.position.x + 10) {
-      // Change direction to backward and rotate the bird 180 degrees on the y-axis
       birdRef.current.rotation.y = Math.PI;
     } else if (birdRef.current.position.x < camera.position.x - 10) {
-      // Change direction to forward and reset the bird's rotation
       birdRef.current.rotation.y = 0;
     }
 
-    // Update the X and Z positions based on the direction
+    const speed = reducedAnimations ? 0.006 : 0.01;
     if (birdRef.current.rotation.y === 0) {
-      // Moving forward
-      birdRef.current.position.x += 0.01;
-      birdRef.current.position.z -= 0.01;
+      birdRef.current.position.x += speed;
+      birdRef.current.position.z -= speed;
     } else {
-      // Moving backward
-      birdRef.current.position.x -= 0.01;
-      birdRef.current.position.z += 0.01;
+      birdRef.current.position.x -= speed;
+      birdRef.current.position.z += speed;
     }
+
+    invalidate();
   });
 
   return (
-    // to create and display 3D objects
     <mesh ref={birdRef} position={[-5, 2, 1]} scale={[0.003, 0.003, 0.003]}>
-      // use the primitive element when you want to directly embed a complex 3D
-      model or scene
       <primitive object={scene} />
     </mesh>
   );
-}
+});

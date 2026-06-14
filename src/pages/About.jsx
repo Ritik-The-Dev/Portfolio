@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   VerticalTimeline,
   VerticalTimelineElement,
@@ -7,6 +8,54 @@ import { CTA } from "../components";
 import { experiences, skills } from "../constants";
 
 import "react-vertical-timeline-component/style.min.css";
+
+const SkillIcon = ({ skill }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (!skill.imageUrl || hasError) {
+    return (
+      <span className='text-[10px] font-semibold text-center px-1 text-gray-700 leading-tight'>
+        {skill.name}
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src={skill.imageUrl}
+      alt={skill.name}
+      loading='lazy'
+      onError={() => setHasError(true)}
+      className='w-1/2 h-1/2 object-contain'
+    />
+  );
+};
+
+const ExperienceIcon = ({ experience }) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className='flex justify-center items-center w-full h-full bg-gray-100 rounded-full'>
+        <span className='text-[8px] font-bold text-gray-500 text-center leading-tight px-1'>
+          {experience.company_name.split(' ')[0]}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className='flex justify-center items-center w-full h-full'>
+      <img
+        src={experience.icon}
+        alt={experience.company_name}
+        loading='lazy'
+        onError={() => setHasError(true)}
+        className='w-[60%] h-[60%] object-contain rounded-full'
+      />
+    </div>
+  );
+};
 
 const About = () => {
   return (
@@ -22,8 +71,8 @@ const About = () => {
 
       <div className='mt-5 flex flex-col gap-3 text-slate-500'>
         <p>
-          Software Engineer based in Uttarakhand, specializing in technical
-          education through hands-on learning and building applications.
+          Full Stack Developer based in India, specializing in building scalable web applications,
+          ERP systems, and automation platforms with modern JavaScript technologies.
         </p>
       </div>
 
@@ -32,14 +81,10 @@ const About = () => {
 
         <div className='mt-16 flex flex-wrap gap-12'>
           {skills.map((skill) => (
-            <div className='block-container w-20 h-20' key={skill.name}>
+            <div className='block-container w-20 h-20 group' key={skill.name} title={skill.name}>
               <div className='btn-back rounded-xl' />
               <div className='btn-front rounded-xl flex justify-center items-center'>
-                <img
-                  src={skill.imageUrl}
-                  alt={skill.name}
-                  className='w-1/2 h-1/2 object-contain'
-                />
+                <SkillIcon skill={skill} />
               </div>
             </div>
           ))}
@@ -47,30 +92,22 @@ const About = () => {
       </div>
 
       <div className='py-16'>
-        <h3 className='subhead-text'>Work Experience.</h3>
+        <h3 className='subhead-text'>Work Experience</h3>
         <div className='mt-5 flex flex-col gap-3 text-slate-500'>
           <p>
-            I've worked with companies, leveling up my skills and
-            teaming up with smart people. Here's the rundown:
+            I've built production-grade applications serving thousands of users,
+            optimized system performance, and delivered end-to-end solutions. Here's my journey:
           </p>
         </div>
 
         <div className='mt-12 flex'>
           <VerticalTimeline>
-            {experiences.map((experience, index) => (
+            {experiences.map((experience) => (
               <VerticalTimelineElement
                 key={experience.company_name}
                 date={experience.date}
                 iconStyle={{ background: experience.iconBg }}
-                icon={
-                  <div className='flex justify-center items-center w-full h-full'>
-                    <img
-                      src={experience.icon}
-                      alt={experience.company_name}
-                      className='w-[60%] h-[60%] object-contain'
-                    />
-                  </div>
-                }
+                icon={<ExperienceIcon experience={experience} />}
                 contentStyle={{
                   borderBottom: "8px",
                   borderStyle: "solid",
@@ -88,6 +125,11 @@ const About = () => {
                   >
                     {experience.company_name}
                   </p>
+                  {experience.type && (
+                    <p className='text-sm text-slate-400 mt-1'>
+                      {experience.type}
+                    </p>
+                  )}
                 </div>
 
                 <ul className='my-5 list-disc ml-5 space-y-2'>
@@ -100,6 +142,12 @@ const About = () => {
                     </li>
                   ))}
                 </ul>
+
+                {experience.technologies && (
+                  <p className='text-xs text-blue-500 font-medium mt-3'>
+                    Tech: {experience.technologies}
+                  </p>
+                )}
               </VerticalTimelineElement>
             ))}
           </VerticalTimeline>

@@ -1,10 +1,11 @@
 import emailjs from "@emailjs/browser";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useRef, useState, lazy } from "react";
 
 import { Fox } from "../models";
 import useAlert from "../hooks/useAlert";
-import { Alert, Loader } from "../components";
+import { Alert } from "../components";
+import { useDeviceCapability } from "../hooks/useDeviceCapability";
 
 const Contact = () => {
   const formRef = useRef();
@@ -12,6 +13,7 @@ const Contact = () => {
   const { alert, showAlert, hideAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [currentAnimation, setCurrentAnimation] = useState("idle");
+  const capability = useDeviceCapability();
 
   const handleChange = ({ target: { name, value } }) => {
     setForm({ ...form, [name]: value });
@@ -137,35 +139,49 @@ const Contact = () => {
         </form>
       </div>
 
-      <div className='lg:w-1/2 w-full lg:h-auto md:h-[550px] h-[350px]'>
-        <Canvas
-          camera={{
-            position: [0, 0, 5],
-            fov: 75,
-            near: 0.1,
-            far: 1000,
-          }}
-        >
-          <directionalLight position={[0, 0, 1]} intensity={2.5} />
-          <ambientLight intensity={1} />
-          <pointLight position={[5, 10, 0]} intensity={2} />
-          <spotLight
-            position={[10, 10, 10]}
-            angle={0.15}
-            penumbra={1}
-            intensity={2}
-          />
+      {/* Only render Fox 3D model if device can handle it */}
+      {capability.canRender3D && (
+        <div className='lg:w-1/2 w-full lg:h-auto md:h-[550px] h-[350px]'>
+          <Canvas
+            camera={{
+              position: [0, 0, 5],
+              fov: 75,
+              near: 0.1,
+              far: 1000,
+            }}
+            dpr={capability.dpr}
+            frameloop='demand'
+            gl={{
+              antialias: capability.antialias,
+              powerPreference: "high-performance",
+              stencil: false,
+            }}
+          >
+            <directionalLight position={[0, 0, 1]} intensity={2.5} />
+            <ambientLight intensity={1} />
+            {capability.tier !== 'low' && (
+              <pointLight position={[5, 10, 0]} intensity={2} />
+            )}
+            {capability.tier === 'high' && (
+              <spotLight
+                position={[10, 10, 10]}
+                angle={0.15}
+                penumbra={1}
+                intensity={2}
+              />
+            )}
 
-          <Suspense fallback={<Loader />}>
-            <Fox
-              currentAnimation={currentAnimation}
-              position={[0.5, 0.35, 0]}
-              rotation={[12.629, -0.6, 0]}
-              scale={[0.5, 0.5, 0.5]}
-            />
-          </Suspense>
-        </Canvas>
-      </div>
+            <Suspense fallback={null}>
+              <Fox
+                currentAnimation={currentAnimation}
+                position={[0.5, 0.35, 0]}
+                rotation={[12.629, -0.6, 0]}
+                scale={[0.5, 0.5, 0.5]}
+              />
+            </Suspense>
+          </Canvas>
+        </div>
+      )}
     </section>
   );
 };

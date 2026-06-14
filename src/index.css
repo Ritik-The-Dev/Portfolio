@@ -181,3 +181,44 @@ body:has(.card[data-color="green"]:hover) {
   box-shadow: 0.6vmin 0.6vmin #fff, 1vmin 1vmin #d2e4ff, 1vmin 1vmin #d2e4ff,
     0.65vmin 1vmin #d2e4ff, 1vmin 0.65vmin #d2e4ff;
 }
+
+/* Project card hover animations */
+.project-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+}
+
+/* External skill icon consistency */
+.skill-icon-external {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+  transition: transform 0.2s ease;
+}
+
+.skill-icon-external:hover {
+  transform: scale(1.1);
+}
+
+/* Smooth link hover */
+.live-demo-link {
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.live-demo-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  transition: width 0.3s ease;
+}
+
+.live-demo-link:hover::after {
+  width: 100%;
+}
